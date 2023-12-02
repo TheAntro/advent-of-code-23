@@ -38,12 +38,16 @@ func readLines(fileName string) []string {
 	return lines
 }
 
+func Split(r rune) bool {
+	return r == ';' || r == ','
+}
+
 func parseGameData(data []string) []Game {
 	var games []Game
 	for i := 0; i < len(data); i++ {
 		splitData := strings.Split(data[i], ":")
-		game, _ := strconv.Atoi(splitData[0])
-		cubes := strings.Split(splitData[1], ";")
+		game, _ := strconv.Atoi(strings.Split(splitData[0], " ")[1])
+		cubes := strings.FieldsFunc(splitData[1], Split)
 		var red int
 		var green int
 		var blue int
