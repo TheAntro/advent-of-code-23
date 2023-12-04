@@ -1,0 +1,3 @@
+module github.com/TheAntro/advent-of-code/day1
+
+go 1.21.4
