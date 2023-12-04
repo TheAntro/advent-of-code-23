@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 func readLines(fileName string) []string {
@@ -117,44 +117,49 @@ func resolveNumber(matrix [][]string, numberX int, numberY int) (int, int) {
 	return number, startX
 }
 
-func saveAdjacentParts(matrix [][]string, symbolX int, symbolY int, partMap map[string]int) {
+func getAdjacentParts(matrix [][]string, symbolX int, symbolY int) map[string]int {
 	adjacentPositions := getAdjacentPositions(matrix, symbolX, symbolY)
+	adjacentParts :=  make(map[string]int)
 	for _, pos := range adjacentPositions {
 		if isInt(matrix[pos.y][pos.x]) {
 			// resolveNumber(matrix, pos.x, pos.y)
 			number, startX := resolveNumber(matrix, pos.x, pos.y)
-			partMap["x" + strconv.Itoa(startX) + "y" + strconv.Itoa(pos.y)] = number
+			adjacentParts["x" + strconv.Itoa(startX) + "y" + strconv.Itoa(pos.y)] = number
 		}
 	}
+	return adjacentParts
 }
 
-func parseSchematicMatrix(matrix [][]string) map[string]int {
+func parseSchematicMatrix(matrix [][]string) (map[string]int, int) {
 	partMap := make(map[string]int)
+	var gearRatios int
 	for y := range matrix {
 		for x := range matrix[y] {
 			if isSymbol(matrix[y][x]) {
-				saveAdjacentParts(matrix, x, y, partMap)
+				adjacentParts := getAdjacentParts(matrix, x, y)
+				for pos, num := range adjacentParts {
+					partMap[pos] = num
+				}
+				if (matrix[y][x] == "*" && len(adjacentParts) == 2) {
+					gearRatio := 1
+					for _, num := range adjacentParts {
+						gearRatio *= num
+					}
+					gearRatios += gearRatio
+				}
 			}
 		} 
 	}
-	return partMap
+	return partMap, gearRatios
 }
 
 func main() {
 	schematicMatrix := readMatrix("schematic.txt")
-	partsMap := parseSchematicMatrix(schematicMatrix)
+	partsMap, gearRatio := parseSchematicMatrix(schematicMatrix)
 	var sum int
 	for _, partNum := range partsMap {
 		sum += partNum
 	}
 	fmt.Println(sum)
-	// fmt.Println(schematicMatrix)
-	// read schematic into a matrix
-	// go through the matrix with this logic
-	// If char is a symbol
-	// Check each adjacent point for digits.
-	// If an adjacent point is a digit, resolve the entire number that digit belongs to.
-	// Save the number in a map with a key such that `x${xCoord}y${yCoord}`: number
-	// where xCoord, yCoord is the position of the first digit of the number in the matrix.
-	// After iterating through the entire matrix, go through the generated map and sum up the numbers
+	fmt.Printf("Gear ratios: %d\n", gearRatio)
 }
