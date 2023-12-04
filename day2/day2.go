@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 type Game struct {
@@ -85,6 +85,14 @@ func getPossibleGames(games []Game, bag BagContent) []int {
 	return possibleGames
 }
 
+func getPowerOfCubes(games []Game) int {
+	var sum int;
+	for _, game := range games {
+		sum += game.red * game.green * game.blue
+	}
+	return sum
+}
+
 func main() {
 	lines := readLines("cube-conundrum")
 	games := parseGameData(lines)
@@ -95,4 +103,6 @@ func main() {
 		sum += possibleGames[i]
 	}
 	fmt.Println(sum)
+	powerOfCubes := getPowerOfCubes((games))
+	fmt.Printf("power: %d\n", powerOfCubes)
 }
