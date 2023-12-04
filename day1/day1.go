@@ -4,8 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"unicode"
 	"strconv"
+	"strings"
+	"unicode"
 )
 
 func readLines() []string {
@@ -25,26 +26,68 @@ func readLines() []string {
 	return lines
 }
 
+
 func main() {
+	var digits []int
+	numbers := [9]string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
 	var calibrationData = readLines()
 	var calibrationSum = 0
 	for _, line := range calibrationData {
-		var firstDigit string
+		var firstDigit int
 		var firstDigitIndexSet = -1
-		var lastDigit string
+		var lastDigit int
+		var firstNumber int
+		lastDigitIndex := -1
+	  firstNumberIndex := -1
+		var lastNumber int
+		lastNumberIndex := -1
 		for i := 0; i < len(line); i++ {
 			if unicode.IsDigit(rune(line[i])) == true {
 				if (firstDigitIndexSet == -1) {
-					firstDigit = string(line[i])
+					firstDigit, _ = strconv.Atoi(string(line[i]))
 					firstDigitIndexSet = i
 				}
-				lastDigit = string(line[i])
+				lastDigit, _ = strconv.Atoi(string(line[i]))
+				lastDigitIndex = i
 			}
 		}
-		var calibrationValue = firstDigit + lastDigit
-		calibrationNumber, _ := strconv.Atoi(calibrationValue)
-		calibrationSum += calibrationNumber
+		for i, number := range numbers {
+			numberIndex := strings.Index(line, number)
+			if (numberIndex != -1) {
+				if (firstNumberIndex == -1) {
+					firstNumberIndex = numberIndex
+					firstNumber = i + 1
+				} else if (numberIndex < firstNumberIndex) {
+					firstNumberIndex = numberIndex
+					firstNumber = i + 1
+				}
+			}
+			lastIndex := strings.LastIndex(line, number)
+			if (lastIndex != -1) {
+				if (lastNumberIndex == -1) {
+					lastNumberIndex = lastIndex
+					lastNumber = i + 1
+				} else if (lastNumberIndex < lastIndex) {
+					lastNumberIndex = lastIndex
+					lastNumber = i + 1
+				}
+			}
+		}
+		if (firstNumberIndex != -1) {
+			if (firstNumberIndex < firstDigitIndexSet) {
+				firstDigit = firstNumber
+			}
+		}
+		if (lastNumberIndex != -1) {
+			if (lastNumberIndex > lastDigitIndex) {
+				lastDigit = lastNumber
+			}
+		}
+		calibrationValue := 10 * firstDigit + lastDigit
+		digits = append(digits, calibrationValue)
+		calibrationSum += calibrationValue
 	}
 	fmt.Println(calibrationData)
+	fmt.Println(digits)
 	fmt.Println(calibrationSum)
 }
